@@ -1,0 +1,91 @@
+version: '3.9'
+
+services:
+  # MongoDB Database
+  mongodb:
+    image: mongo:6.0
+    container_name: chatfree-mongodb
+    restart: unless-stopped
+    ports:
+      - "27017:27017"
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: admin
+      MONGO_INITDB_ROOT_PASSWORD: ${MONGO_PASSWORD:-changeme}
+      MONGO_INITDB_DATABASE: chatfree
+    volumes:
+      - mongodb_data:/data/db
+    healthcheck:
+      test: echo 'db.runCommand("ping").ok' | mongosh localhost:27017/test --quiet
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # Backend API
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: chatfree-backend
+    restart: unless-stopped
+    ports:
+      - "3001:3001"
+    environment:
+      NODE_ENV: ${NODE_ENV:-development}
+      PORT: 3001
+      MONGODB_URI: mongodb://admin:${MONGO_PASSWORD:-changeme}@mongodb:27017/chatfree?authSource=admin
+      JWT_SECRET: ${JWT_SECRET:-dev-secret-key}
+      OLLAMA_API_URL: ${OLLAMA_API_URL:-http://ollama:11434}
+      ALLOWED_ORIGINS: http://localhost:3000,http://frontend:3000
+      LOG_LEVEL: ${LOG_LEVEL:-info}
+    depends_on:
+      mongodb:
+        condition: service_healthy
+      ollama:
+        condition: service_started
+    volumes:
+      - ./backend/logs:/app/logs
+    healthcheck:
+      test: curl -f http://localhost:3001/api/health || exit 1
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # Frontend Web App
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: chatfree-frontend
+    restart: unless-stopped
+    ports:
+      - "3000:3000"
+    environment:
+      REACT_APP_API_URL: http://localhost:3001/api
+    depends_on:
+      - backend
+    healthcheck:
+      test: curl -f http://localhost:3000 || exit 1
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # Ollama (Local LLM)
+  ollama:
+    image: ollama/ollama:latest
+    container_name: chatfree-ollama
+    restart: unless-stopped
+    ports:
+      - "11434:11434"
+    environment:
+      OLLAMA_HOST: 0.0.0.0:11434
+    volumes:
+      - ollama_data:/root/.ollama
+    # Note: You may need to run: docker exec chatfree-ollama ollama pull llama2
+
+volumes:
+  mongodb_data:
+  ollama_data:
+
+networks:
+  default:
+    name: chatfree-network
