@@ -1,4 +1,5 @@
 import axios from 'axios';
+import { getToken } from './auth';
 
 const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:3001/api';
 
@@ -6,6 +7,34 @@ const api = axios.create({
   baseURL: API_URL,
   timeout: 30000,
 });
+
+// Add JWT token to every request
+api.interceptors.request.use(
+  config => {
+    const token = getToken();
+    if (token) {
+      config.headers.Authorization = `Bearer ${token}`;
+    }
+    return config;
+  },
+  error => {
+    return Promise.reject(error);
+  }
+);
+
+// Handle 401 responses (token expired/invalid)
+api.interceptors.response.use(
+  response => response,
+  error => {
+    if (error.response?.status === 401) {
+      // Token is invalid or expired, clear auth and redirect to login
+      localStorage.removeItem('chatfree_token');
+      localStorage.removeItem('chatfree_user');
+      window.location.href = '/login';
+    }
+    return Promise.reject(error);
+  }
+);
 
 // Conversations API
 export async function getConversations() {
@@ -107,4 +136,41 @@ export async function listModels() {
 export async function healthCheck() {
   const response = await axios.get('http://localhost:3001/api/health');
   return response.data;
+}
+
+// Authentication API
+export async function register(email, username, password) {
+  const response = await api.post('/auth/register', {
+    email,
+    username,
+    password,
+  });
+  return response.data;
+}
+
+export async function login(email, password) {
+  const response = await api.post('/auth/login', {
+    email,
+    password,
+  });
+  return response.data;
+}
+
+export async function logout() {
+  try {
+    await api.post('/auth/logout');
+  } catch (error) {
+    // Even if logout fails on backend, we clear local storage
+    console.error('Logout error:', error);
+  }
+}
+
+export async function getCurrentUser() {
+  const response = await api.get('/auth/me');
+  return response.data.user;
+}
+
+export async function updateProfile(updates) {
+  const response = await api.put('/auth/update-profile', updates);
+  return response.data.user;
 }

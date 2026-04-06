@@ -1,0 +1,49 @@
+apiVersion: storage.k8s.io/v1
+kind: StorageClass
+metadata:
+  name: chatfree-storage
+provisioner: kubernetes.io/aws-ebs
+parameters:
+  type: gp2
+  iops: "3000"
+  volumeType: gp2
+allowVolumeExpansion: true
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: mongodb-data
+  namespace: chatfree
+spec:
+  accessModes:
+    - ReadWriteOnce
+  storageClassName: chatfree-storage
+  resources:
+    requests:
+      storage: 10Gi
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: ollama-data
+  namespace: chatfree
+spec:
+  accessModes:
+    - ReadWriteOnce
+  storageClassName: chatfree-storage
+  resources:
+    requests:
+      storage: 20Gi
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: logs-data
+  namespace: chatfree
+spec:
+  accessModes:
+    - ReadWriteOnce
+  storageClassName: chatfree-storage
+  resources:
+    requests:
+      storage: 5Gi

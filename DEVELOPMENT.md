@@ -1,5 +1,258 @@
 # ChatFree Development Guide
 
+**Version**: 2.0.0+ (Production-Ready)
+
+## Quick Start
+
+### Prerequisites
+
+- **Node.js** 18+ ([Download](https://nodejs.org/))
+- **npm** 9+ (comes with Node.js)
+- **MongoDB** 5.0+ ([Download Community Edition](https://www.mongodb.com/try/download/community) or use [MongoDB Atlas](https://www.mongodb.com/cloud/atlas) free tier)
+- **Ollama** ([Download](https://ollama.ai/))
+- **Git** ([Download](https://git-scm.com/))
+
+### Setup (5 minutes)
+
+```bash
+# 1. Clone and enter directory
+git clone <repository-url>
+cd CHATFREE
+
+# 2. Start MongoDB (if not already running)
+mongod
+# Or use Docker: docker run -d -p 27017:27017 -e MONGO_INITDB_ROOT_USERNAME=admin -e MONGO_INITDB_ROOT_PASSWORD=password mongo:6.0
+
+# 3. Start Ollama (in another terminal)
+ollama serve
+ollama pull llama2  # Download a model
+
+# 4. Backend setup (new terminal)
+cd backend
+cp .env.example .env  # Edit with your values
+npm install
+npm start
+# Should see: "ChatFree backend running on http://localhost:3001"
+
+# 5. Frontend setup (another terminal)
+cd frontend
+echo "REACT_APP_API_URL=http://localhost:3001/api" > .env
+npm install
+npm start
+# Opens http://localhost:3000
+```
+
+### Create Account & Test
+
+1. Register at http://localhost:3000 (email, username, password)
+2. Login with credentials
+3. Click "New Conversation"
+4. Send a message and get AI response
+5. Run bias analysis
+6. Try different models and settings
+
+## Development Workflow
+
+### Making Changes
+
+**Create a feature branch:**
+```bash
+git checkout -b feature/my-feature
+```
+
+**Make changes and test locally as you develop.**
+
+**Commit with clear messages:**
+```bash
+git add .
+git commit -m "feat: add dark mode toggle"
+# Types: feat, fix, docs, style, refactor, test, chore
+```
+
+**Push and create Pull Request:**
+```bash
+git push origin feature/my-feature
+```
+
+### Adding Backend Features
+
+#### Example: New API Endpoint
+
+1. **Create validation schema** (middleware/validation.js):
+   ```javascript
+   const myFeatureSchema = Joi.object({
+     field1: Joi.string().required(),
+     field2: Joi.number().optional()
+   });
+   ```
+
+2. **Create route** (routes/myfeature.js):
+   ```javascript
+   const { auth } = require('../middleware/auth');
+   const { validate } = require('../middleware/validation');
+   const { asyncHandler } = require('../middleware/errorHandler');
+
+   router.post('/', auth, validate('myFeature'), asyncHandler(async (req, res) => {
+     // Your logic here
+     res.json({ success: true, data: {} });
+   }));
+   ```
+
+3. **Mount in server.js**:
+   ```javascript
+   app.use('/api/myfeature', require('./routes/myfeature'));
+   ```
+
+4. **Test with curl**:
+   ```bash
+   TOKEN=$(curl -s -X POST http://localhost:3001/api/auth/login \
+     -H "Content-Type: application/json" \
+     -d '{"email":"user@example.com","password":"password"}' | jq -r '.token')
+   
+   curl -X POST http://localhost:3001/api/myfeature \
+     -H "Authorization: Bearer $TOKEN" \
+     -H "Content-Type: application/json" \
+     -d '{"field1":"value"}'
+   ```
+
+### Adding Frontend Features
+
+#### Example: New Component
+
+1. **Create component** (src/components/MyComponent.jsx):
+   ```javascript
+   import { useContext } from 'react';
+   import { ConversationContext } from '../contexts/ConversationContext';
+   
+   export function MyComponent() {
+     const { conversations } = useContext(ConversationContext);
+     
+     return <div>My component content</div>;
+   }
+   ```
+
+2. **Add to App.jsx**:
+   ```javascript
+   import { MyComponent } from './components/MyComponent';
+   
+   function App() {
+     return <MyComponent />;
+   }
+   ```
+
+3. **Add styles** (src/styles/MyComponent.css):
+   ```css
+   .my-component {
+     padding: 1rem;
+     border-radius: 8px;
+   }
+   ```
+
+### Calling Backend API
+
+```javascript
+import { api } from '../utils/api';
+
+// Automatically includes JWT token from localStorage
+const { data } = await api.get('/conversations');
+const { data } = await api.post('/feature', { field1: 'value' });
+```
+
+## Debugging
+
+### Backend Debugging
+
+**Check logs:**
+```bash
+tail -f backend/logs/combined.log
+tail -f backend/logs/error.log
+```
+
+**Enable debug mode:**
+```bash
+node --inspect server.js
+# Then use Chrome DevTools
+```
+
+**Test endpoint with curl:**
+```bash
+curl -X GET http://localhost:3001/api/health
+```
+
+**Check MongoDB connection:**
+```bash
+mongosh "mongodb://admin:password@localhost:27017/chatfree?authSource=admin"
+> db.users.find()
+> db.conversations.find()
+```
+
+### Frontend Debugging
+
+**Browser DevTools (F12):**
+- Console: Check for errors
+- Network: See API requests/responses
+- Storage: Check localStorage token
+- React DevTools: Inspect components and state
+
+**React Profiler:**
+- DevTools → Profiler tab
+- Record component renders
+- Identify performance issues
+
+## Common Tasks
+
+### Reset Development Environment
+
+```bash
+# Stop all services
+# Kill MongoDB, Ollama, backend, frontend
+
+# Clear data
+rm -rf backend/logs/*
+
+# MongoDB reset
+mongosh
+> db.dropDatabase()
+
+# npm reset
+rm -rf backend/node_modules
+rm -rf frontend/node_modules
+npm install (in each directory)
+
+# Restart services
+```
+
+### Update Dependencies
+
+```bash
+npm outdated          # Check for updates
+npm update            # Update patch/minor
+npm install package@latest  # Update major
+```
+
+### Change Ollama Model
+
+```bash
+# List available
+ollama list
+
+# Pull a new model
+ollama pull mistral
+
+# Backend automatically detects available models
+# Select in UI or set OLLAMA_MODEL in .env
+```
+
+### Test with Different MongoDB
+
+```bash
+# Change MONGODB_URI in .env
+MONGODB_URI=mongodb://user:pass@host:27017/chatfree?authSource=admin
+
+# Or use MongoDB Atlas (cloud)
+# Create free cluster at https://www.mongodb.com/cloud/atlas
+```
+
 ## Architecture Overview
 
 ChatFree is a **three-tier application**:

@@ -1,5 +1,6 @@
 import React, { createContext, useContext, useState, useCallback, useEffect } from 'react';
 import { loadConversations, saveConversation, loadConversationDetails } from '../utils/localStorage';
+import { getUser, getToken } from '../utils/auth';
 import * as api from '../utils/api';
 
 const ConversationContext = createContext();
@@ -11,6 +12,8 @@ export function ConversationProvider({ children }) {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null);
   const [analysisResult, setAnalysisResult] = useState(null);
+  const [user, setUser] = useState(null);
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [controls, setControls] = useState({
     role: 'unbiased-assistant',
     tone: 'neutral',
@@ -22,7 +25,14 @@ export function ConversationProvider({ children }) {
 
   // Load conversations on mount
   useEffect(() => {
-    loadInitialConversations();
+    const token = getToken();
+    const currentUser = getUser();
+    
+    if (token && currentUser) {
+      setIsAuthenticated(true);
+      setUser(currentUser);
+      loadInitialConversations();
+    }
   }, []);
 
   const loadInitialConversations = async () => {
@@ -164,6 +174,14 @@ export function ConversationProvider({ children }) {
     }
   }, [currentConversation, controls, switchConversation]);
 
+  const logout = useCallback(() => {
+    setUser(null);
+    setIsAuthenticated(false);
+    setConversations([]);
+    setCurrentConversation(null);
+    setMessages([]);
+  }, []);
+
   const value = {
     conversations,
     currentConversation,
@@ -172,6 +190,8 @@ export function ConversationProvider({ children }) {
     error,
     analysisResult,
     controls,
+    user,
+    isAuthenticated,
     createNewConversation,
     switchConversation,
     deleteConversation,
@@ -180,6 +200,7 @@ export function ConversationProvider({ children }) {
     updateControls,
     resetConversation,
     setError,
+    logout,
   };
 
   return (

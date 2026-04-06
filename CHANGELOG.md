@@ -1,53 +1,232 @@
-# Changelog - ChatFree v1.0.0
+# Changelog
 
-## Initial Release - [April 2026]
+All notable changes to ChatFree will be documented in this file.
 
-### Core Features
+The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
+and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
+
+## [2.0.0] - 2024-01-15
+
+### Production Release 🚀
+
+Complete transformation from v1.0.0 to enterprise-ready application with database, authentication, and containerization.
+
+### Added
+
+#### Authentication & Security
+- JWT authentication system (7-day expiry)
+- User registration, login, logout endpoints
+- User profile management
+- Password hashing with bcryptjs (10-round salt)
+- Role-based access control (user/admin)
+- Rate limiting (100 req/15min general, 5 req/15min auth)
+- Security headers (Helmet)
+- CORS whitelist, NoSQL injection prevention (mongo-sanitize)
+- Request compression (gzip)
+
+#### Database & Persistence
+- MongoDB integration with Mongoose ODM
+- User model with authentication methods and preferences
+- Conversation model with ownership verification
+- Message array storage with timestamps
+- Metadata tracking (token count, analysis count)
+- Database connection handler with error handling
+- Proper indexing for query performance
+
+#### Request Validation & Error Handling
+- Joi schema validation for all endpoints (8+ schemas)
+- Centralized error handling with AppError class
+- Specific error processing (MongoDB, JWT, validation)
+- asyncHandler wrapper for Promise rejection handling
+- Proper HTTP status codes
+
+#### Logging & Monitoring
+- Winston logger with file rotation (5MB, 5-file limit)
+- Separate error and combined logs
+- Console logging in development
+- Request audit logging
+- Error tracking with full context
+
+#### Containerization
+- Docker images for backend and frontend
+- docker-compose orchestration (5 services)
+- Health checks on all containers
+- Service networking and data persistence
+- Alpine Linux base images
+
+#### Kubernetes Support
+- Complete Kubernetes manifests (k8s/ directory)
+- StatefulSet for MongoDB
+- Deployments with auto-scaling
+- ConfigMaps and Secrets management
+- PersistentVolumeClaims for data
+- Ingress configuration
+- Health checks and readiness probes
+
+#### Documentation
+- Updated README.md (production-ready)
+- API documentation (API.md) with 30+ examples
+- Configuration reference (CONFIG.md)
+- Production deployment guide (PRODUCTION.md)
+- Development guide (DEVELOPMENT.md)
+- Roadmap with feature tracking (ROADMAP.md)
+- Architecture documentation
+- Comprehensive troubleshooting
+
+### Changed
+
+#### Backend
+- Migrated from localStorage Map to MongoDB persistent storage
+- Conversation endpoints now use Mongoose queries
+- Authentication middleware on all protected routes
+- Ownership verification for user isolation
+- Refactored server.js with proper middleware composition
+- Enhanced error responses with consistent format
+
+#### Frontend
+- API client updated to include JWT token in requests
+- ConversationContext prepared for auth state management
+- Documentation with auth context examples
+
+#### Project Structure
+- Added config/, models/, middleware/ directories
+- Added docker/ and k8s/ directories
+- Reorganized routes with auth middleware
+- Added comprehensive documentation files
+
+### Security Improvements
+- Passwords hashed before storage
+- JWT tokens with signature verification
+- Rate limiting for brute force protection
+- CORS whitelisting
+- NoSQL injection prevention
+- Security headers for common vulnerabilities
+- Sensitive data excluded from logs
+- No password sent to frontend
+- Database credentials in environment variables
+
+### Performance
+- Database indexes on frequent queries
+- Connection pooling with MongoDB
+- Response compression with gzip
+- Efficient message storage
+- Proper HTTP caching headers
+
+### Infrastructure
+- Docker for consistent environments
+- Docker Compose for local development
+- Kubernetes ready for cloud deployment
+- Health checks for reliability
+- Service dependencies properly configured
+
+## [1.0.0] - 2024-01-10
+
+### Initial Release
+
+Complete chatbot application with local LLM integration, bias detection, and conversation memory.
+
+### Features
+
+#### Core Capabilities
 - **Conversation Memory System**
   - Full turn-by-turn history with timestamps
   - localStorage persistence for browser-only mode
-  - Conversation listing with timestamps and personas
-  - Create, switch, and delete conversations
-  - Reset conversations to start fresh
+  - Conversation listing, create, switch, delete
+  - Conversation reset functionality
 
 - **Intent & Tone Controls**
   - Role selection (unbiased-assistant, legal, empathetic, technical, casual)
   - Tone configuration (neutral, assertive, empathetic, authoritative, friendly)
   - Audience targeting (general, expert, layperson, academic, professional)
-  - Real-time control updates without conversation loss
+  - Real-time control updates
 
 - **Bias & Framing Detection**
-  - Pattern-based heuristic detection (50+ patterns)
-  - Identity inflation detection
-  - Definition shift recognition
-  - False consensus pattern detection
-  - Tone aggression flagging
-  - Domination phrase identification
-  - 0-10 risk scoring algorithm
+  - Pattern-based detection (50+ patterns)
+  - Identity inflation, definition shift, false consensus detection
+  - Tone aggression flagging, domination phrase identification
+  - Risk scoring (0-10 scale)
   - Detailed improvement suggestions
 
 - **Model Configuration**
   - Model selection (llama2, llama3, phi3, gemma2, mistral)
-  - Temperature slider (0-1.0 scale)
-  - Top_p sampling control
+  - Temperature and top_p control
   - Real-time model switching
   - Available models enumeration from Ollama
 
 - **Message Tools**
-  - Copy-to-clipboard for all messages
-  - Message expansion/collapse for long content
+  - Copy-to-clipboard
+  - Message expansion/collapse
   - Formatting suggestions (shorter, formal, simplify)
-  - Message timestamps and role indicators
-  - User vs AI message distinction
+  - Timestamps and role indicators
 
 - **Modern UI/UX**
-  - Three-region responsive layout (sidebar | chat | controls)
+  - Three-region responsive layout
   - Real-time message streaming
-  - Loading indicators with animations
-  - Error handling and display
+  - Loading indicators
+  - Error handling
   - Collapsible control panels
   - Mobile-responsive design
-  - Dark theme optimized for readability
+  - Dark theme
+
+### Architecture
+- **Frontend**: React 18 with Hooks and Context API
+- **Backend**: Node.js/Express
+- **LLM**: Ollama (local)
+- **Storage**: localStorage (browser)
+- **Styling**: CSS3 with CSS variables
+
+---
+
+## Unreleased
+
+### Planned for v2.1.0
+- Frontend authentication UI (login/register pages)
+- Token persistence in localStorage
+- Protected routes
+- User profile page
+- Password reset flow
+
+### Planned for v2.2.0
+- Docker image testing
+- CI/CD pipeline (GitHub Actions)
+- Kubernetes deployment testing
+- Performance optimization
+
+### Planned for v2.3.0
+- Two-factor authentication
+- API key management
+- Field-level database encryption
+- Audit logging
+
+### Planned for v2.4.0
+- Redis caching
+- GraphQL endpoint
+- Load testing
+- Performance reports
+
+### Planned for v2.5.0
+- Conversation export (JSON, Markdown, PDF)
+- Conversation search
+- Custom personas
+- RAG integration
+- Team collaboration
+
+---
+
+## Migration Guide
+
+### From v1.0.0 to v2.0.0
+
+If upgrading from v1.0.0:
+
+1. **Conversations**: Stored locally will be lost; export before upgrade
+2. **Configuration**: New MongoDB, JWT_SECRET required
+3. **API Changes**: All endpoints now require authentication
+4. **Breaking Changes**: User ownership verification enforced
+
+---
+
+**For the latest changes, see [GitHub Releases](https://github.com/your-repo/releases)**
 
 ### Backend API
 - **Conversation Endpoints**

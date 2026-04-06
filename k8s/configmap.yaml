@@ -1,0 +1,12 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: chatfree-config
+  namespace: chatfree
+data:
+  NODE_ENV: "production"
+  PORT: "3001"
+  OLLAMA_API_URL: "http://ollama:11434"
+  ALLOWED_ORIGINS: "http://localhost:3000,https://yourdomain.com"
+  LOG_LEVEL: "info"
+  REACT_APP_API_URL: "https://api.yourdomain.com/api"
