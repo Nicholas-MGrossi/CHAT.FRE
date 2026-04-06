@@ -1,14 +1,21 @@
 import React, { useEffect, useState } from 'react';
-import { ConversationProvider } from './contexts/ConversationContext';
+import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
+import { ConversationProvider, useConversation } from './contexts/ConversationContext';
+import Login from './components/Login';
+import Register from './components/Register';
+import ProtectedRoute from './components/ProtectedRoute';
+import Header from './components/Header';
 import SideBar from './components/SideBar';
 import ChatWindow from './components/ChatWindow';
 import RightPanel from './components/RightPanel';
 import { healthCheck } from './utils/api';
+import { isAuthenticated } from './utils/auth';
 import './styles/app.css';
 
 function AppContent() {
   const [serverReady, setServerReady] = useState(false);
   const [serverError, setServerError] = useState(null);
+  const { isAuthenticated: userAuthenticated } = useConversation();
 
   useEffect(() => {
     checkServer();
@@ -27,7 +34,7 @@ function AppContent() {
     }
   };
 
-  if (!serverReady) {
+  if (!serverReady && userAuthenticated) {
     return (
       <div className="error-screen">
         <div className="error-container">
@@ -44,18 +51,40 @@ function AppContent() {
 
   return (
     <div className="app">
-      <SideBar />
-      <ChatWindow />
-      <RightPanel />
+      <Header />
+      <div className="app-content">
+        <SideBar />
+        <ChatWindow />
+        <RightPanel />
+      </div>
     </div>
   );
 }
 
 function App() {
   return (
-    <ConversationProvider>
-      <AppContent />
-    </ConversationProvider>
+    <BrowserRouter>
+      <ConversationProvider>
+        <Routes>
+          {/* Public routes */}
+          <Route path="/login" element={<Login />} />
+          <Route path="/register" element={<Register />} />
+
+          {/* Protected routes */}
+          <Route
+            path="/"
+            element={
+              <ProtectedRoute>
+                <AppContent />
+              </ProtectedRoute>
+            }
+          />
+
+          {/* Redirect unknown routes to login or home */}
+          <Route path="*" element={<Navigate to={isAuthenticated() ? '/' : '/login'} replace />} />
+        </Routes>
+      </ConversationProvider>
+    </BrowserRouter>
   );
 }
 

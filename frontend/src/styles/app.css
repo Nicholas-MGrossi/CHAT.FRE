@@ -1,11 +1,18 @@
 /* App Layout */
 .app {
-  display: grid;
-  grid-template-columns: var(--sidebar-width) 1fr var(--right-panel-width);
+  display: flex;
+  flex-direction: column;
   height: 100vh;
   width: 100vw;
   overflow: hidden;
   background: var(--primary-bg);
+}
+
+.app-content {
+  display: grid;
+  grid-template-columns: var(--sidebar-width) 1fr var(--right-panel-width);
+  flex: 1;
+  overflow: hidden;
 }
 
 .sidebar-toggle {
@@ -31,7 +38,7 @@
 
 /* Responsive Layout */
 @media (max-width: 1400px) {
-  .app {
+  .app-content {
     grid-template-columns: 1fr var(--right-panel-width);
   }
 
