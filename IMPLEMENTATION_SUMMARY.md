@@ -89,7 +89,7 @@ Complete end-to-end authentication flow with JWT tokens, user accounts, and prot
 
 ### Authentication Flow
 
-```
+```text
 ┌─────────────┐
 │   User      │
 └──────┬──────┘
@@ -121,7 +121,7 @@ Complete end-to-end authentication flow with JWT tokens, user accounts, and prot
 
 ### File Structure
 
-```
+```text
 frontend/src/
 ├── components/
 │   ├── Login.jsx                    ✅ NEW
@@ -151,7 +151,7 @@ frontend/src/
 
 ### Component Hierarchy
 
-```
+```text
 App (BrowserRouter)
 ├── Routes
 │   ├── /login → Login
@@ -170,6 +170,7 @@ App (BrowserRouter)
 ## Key Features
 
 ### ✅ User Registration
+
 - Email, username, password validation
 - Password confirmation
 - Username format (3-20 alphanumeric only)
@@ -177,6 +178,7 @@ App (BrowserRouter)
 - Secure password hashing on backend
 
 ### ✅ User Login
+
 - Email/password authentication
 - JWT token generation
 - Token storage in localStorage
@@ -184,30 +186,35 @@ App (BrowserRouter)
 - Auto-redirect on success
 
 ### ✅ Protected Routes
+
 - `/` (chat) requires authentication
 - `/login`, `/register` public only
 - Automatic redirect if no token
 - ProtectedRoute wrapper component
 
 ### ✅ Session Management
+
 - Token persistence across browser refresh
 - Automatic logout on token expiry (401)
 - Clear auth data on logout
 - User info in header
 
 ### ✅ API Integration
+
 - JWT token in Authorization header
 - Automatic token injection via axios interceptor
 - 401 error handling with redirect
 - New auth endpoints (register, login, logout)
 
 ### ✅ Responsive Design
+
 - Login/register forms mobile-optimized
 - Header responsive on small screens
 - Touch-friendly user menu
 - Works on all device sizes
 
 ### ✅ Error Handling
+
 - Form validation with clear messages
 - API error display
 - Network error recovery
@@ -280,7 +287,7 @@ npm start
 ## Tech Stack
 
 | Layer | Technology |
-|-------|-----------|
+| --- | --- |
 | **Frontend** | React 18 + React Router 6 |
 | **State** | Context API (ConversationContext) |
 | **HTTP** | Axios with interceptors |
@@ -326,21 +333,25 @@ ChatFree is now **fully ready for app store submission!**
 Choose one:
 
 1. **Docker Compose** (Recommended)
+
    ```bash
    docker-compose up -d
    ```
 
-2. **Heroku** 
+2. **Heroku**
+
    ```bash
    git push heroku main
    ```
 
 3. **AWS** (EC2 + RDS)
+
    ```bash
    See PRODUCTION.md for guide
    ```
 
 4. **Kubernetes**
+
    ```bash
    kubectl apply -f k8s/
    ```
@@ -352,22 +363,26 @@ See [PRODUCTION.md](../PRODUCTION.md) for detailed instructions.
 ## Security Features
 
 ✅ **Password Security**
+
 - bcryptjs hashing (10-round salt)
 - No passwords stored in plaintext
 - Password never sent to frontend
 
 ✅ **Token Security**
+
 - JWT with 7-day expiry
 - Signature verification
 - Stored in localStorage (upgrade to HttpOnly cookies in prod)
 
 ✅ **Request Security**
+
 - CORS whitelisting
 - NoSQL injection prevention
 - Rate limiting (5 auth req/15min)
 - Helmet security headers
 
 ✅ **Data Protection**
+
 - User isolation (can only access own conversations)
 - Encrypted database ready
 - Audit logging support
@@ -396,6 +411,7 @@ Complete documentation in 10+ files:
 ### Troubleshooting
 
 See [FRONTEND_AUTH.md](./FRONTEND_AUTH.md#troubleshooting) for:
+
 - Common issues and solutions
 - Error messages explained
 - Setup problems
@@ -411,22 +427,26 @@ See [FRONTEND_AUTH.md](./FRONTEND_AUTH.md#troubleshooting) for:
 
 ### Common Issues
 
-**"React Router not found"**
+#### "React Router not found"
+
 ```bash
 npm install react-router-dom
 ```
 
-**Blank login page**
+#### Blank login page
+
 - Clear browser cache (Ctrl+Shift+Delete)
 - Hard refresh (Ctrl+Shift+R)
 - Check console for errors (F12)
 
-**Cannot login**
+#### Cannot login
+
 - Verify backend running on port 3001
 - Check MongoDB is running
 - Look at backend logs
 
-**Token keeps expiring**
+#### Token keeps expiring
+
 - Tokens expire after 7 days (backend setting)
 - User must login again
 - Refresh token support coming in v2.2.0
@@ -436,21 +456,25 @@ npm install react-router-dom
 ## Statistics
 
 ### Code Added
+
 - **1,100+ lines** of new frontend code
 - **400 lines** of new styling
 - **900+ lines** of documentation
 
 ### Components
+
 - **4 new React components** (Login, Register, ProtectedRoute, Header)
 - **1 new context feature** (auth state)
 - **1 new utility module** (token management)
 
 ### Time to Implement
+
 - **8-12 hours** of development
 - **4 hours** of testing
 - **3 hours** of documentation
 
 ### Files Modified
+
 - **5 existing files** updated
 - **9 new files** created
 - **100% backward compatible** (can fallback to v2.0.0)
@@ -459,7 +483,7 @@ npm install react-router-dom
 
 ## Version Timeline
 
-```
+```text
 v1.0.0 (Jan 10)  - Core chat with bias detection ✅
     ↓
 v2.0.0 (Jan 15)  - Production infrastructure
@@ -491,6 +515,7 @@ v2.3.0+          - Advanced features
 ## Ready for Production! 🚀
 
 ChatFree is now **enterprise-ready** with:
+
 - ✅ Complete authentication system
 - ✅ Database persistence
 - ✅ Security hardening
@@ -512,6 +537,8 @@ See [PRODUCTION.md](../PRODUCTION.md) for deployment instructions.
 
 ---
 
-**Built with ❤️ for unbiased, secure, human-centered AI conversations**
+## Credits
+
+Built with ❤️ for unbiased, secure, human-centered AI conversations
 
 *Production-ready. Fully tested. Enterprise-grade.*
